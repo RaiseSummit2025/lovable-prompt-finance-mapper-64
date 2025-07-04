@@ -3,14 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { FileUpload } from "@/components/FileUpload";
+import { PDFExtraction } from "@/components/PDFExtraction";
 import { VisualMapping } from "@/components/VisualMapping";
 import { FinancialStatements } from "@/components/FinancialStatements";
 import { Dashboard } from "@/components/Dashboard";
 import { UnderlyingData } from "@/components/UnderlyingData";
 import { Sidebar } from "@/components/Sidebar";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, Upload, MapPin, BarChart3, AlertTriangle, Settings } from "lucide-react";
+import { CheckCircle, Upload, MapPin, BarChart3, AlertTriangle, Settings, FileText } from "lucide-react";
 import { TrialBalanceEntry, AccountMapping, ValidationResult, FinancialStatement, DashboardMetrics } from "@/types/financial";
+import { processPDFFile, convertPDFToTrialBalance, PDFExtractedData } from "@/services/pdf-processor";
 import { cn } from "@/lib/utils";
 
 const Index = () => {
@@ -20,6 +22,8 @@ const Index = () => {
   const [mappings, setMappings] = useState<AccountMapping[]>([]);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadedFileType, setUploadedFileType] = useState<'excel' | 'pdf' | null>(null);
+  const [pdfData, setPdfData] = useState<PDFExtractedData | null>(null);
   
   const { toast } = useToast();
 
@@ -95,45 +99,90 @@ const Index = () => {
     setCurrentStep(4); // Skip to final step for demo
   }
 
-  const handleFileUpload = (file: File) => {
-    // Mock file processing - in real app this would parse the Excel file
+  const handleFileUpload = async (file: File) => {
+    setIsProcessing(true);
     console.log("Processing file:", file.name);
     
-    // Use mock data for demonstration
-    const mockRawData: TrialBalanceEntry[] = [
-      { date: '2024-12-31', accountNumber: '1001', accountDescription: 'Cash and Cash Equivalents', debit: 500000, credit: 0, balance: 500000 },
-      { date: '2024-12-31', accountNumber: '1200', accountDescription: 'Trade Receivables', debit: 300000, credit: 0, balance: 300000 },
-      { date: '2024-12-31', accountNumber: '1500', accountDescription: 'Inventory', debit: 200000, credit: 0, balance: 200000 },
-      { date: '2024-12-31', accountNumber: '2001', accountDescription: 'Property, Plant & Equipment', debit: 1000000, credit: 0, balance: 1000000 },
-      { date: '2024-12-31', accountNumber: '3001', accountDescription: 'Trade Payables', debit: 0, credit: 150000, balance: -150000 },
-      { date: '2024-12-31', accountNumber: '4001', accountDescription: 'Long-term Debt', debit: 0, credit: 650000, balance: -650000 },
-      { date: '2024-12-31', accountNumber: '5001', accountDescription: 'Share Capital', debit: 0, credit: 1000000, balance: -1000000 },
-      { date: '2024-12-31', accountNumber: '5002', accountDescription: 'Retained Earnings', debit: 0, credit: 200000, balance: -200000 },
-    ];
-    
-    setRawData(mockRawData);
-    
-    // Generate initial mappings from unique accounts
-    const uniqueAccounts = mockRawData.reduce((acc, entry) => {
-      if (!acc.find(item => item.accountNumber === entry.accountNumber)) {
-        acc.push({
-          accountNumber: entry.accountNumber,
-          accountDescription: entry.accountDescription,
-          highLevelCategory: '',
-          subCategory: '',
-          detailedCategory: ''
+    try {
+      if (file.type === 'application/pdf') {
+        // Handle PDF upload
+        setUploadedFileType('pdf');
+        const extractedData = await processPDFFile(file);
+        setPdfData(extractedData);
+        
+        // Convert PDF data to trial balance format for mapping
+        const convertedData = convertPDFToTrialBalance(extractedData);
+        setRawData(convertedData);
+        
+        // Generate initial mappings
+        const uniqueAccounts = convertedData.reduce((acc, entry) => {
+          if (!acc.find(item => item.accountNumber === entry.accountNumber)) {
+            acc.push({
+              accountNumber: entry.accountNumber,
+              accountDescription: entry.accountDescription,
+              highLevelCategory: '',
+              subCategory: '',
+              detailedCategory: ''
+            });
+          }
+          return acc;
+        }, [] as AccountMapping[]);
+        
+        setMappings(uniqueAccounts);
+        setCurrentStep(2); // Go to PDF extraction review
+        
+        toast({
+          title: "PDF processed successfully",
+          description: `Extracted ${convertedData.length} line items from financial statements.`,
+        });
+      } else {
+        // Handle Excel/CSV upload (existing logic)
+        setUploadedFileType('excel');
+        
+        const mockRawData: TrialBalanceEntry[] = [
+          { date: '2024-12-31', accountNumber: '1001', accountDescription: 'Cash and Cash Equivalents', debit: 500000, credit: 0, balance: 500000 },
+          { date: '2024-12-31', accountNumber: '1200', accountDescription: 'Trade Receivables', debit: 300000, credit: 0, balance: 300000 },
+          { date: '2024-12-31', accountNumber: '1500', accountDescription: 'Inventory', debit: 200000, credit: 0, balance: 200000 },
+          { date: '2024-12-31', accountNumber: '2001', accountDescription: 'Property, Plant & Equipment', debit: 1000000, credit: 0, balance: 1000000 },
+          { date: '2024-12-31', accountNumber: '3001', accountDescription: 'Trade Payables', debit: 0, credit: 150000, balance: -150000 },
+          { date: '2024-12-31', accountNumber: '4001', accountDescription: 'Long-term Debt', debit: 0, credit: 650000, balance: -650000 },
+          { date: '2024-12-31', accountNumber: '5001', accountDescription: 'Share Capital', debit: 0, credit: 1000000, balance: -1000000 },
+          { date: '2024-12-31', accountNumber: '5002', accountDescription: 'Retained Earnings', debit: 0, credit: 200000, balance: -200000 },
+        ];
+        
+        setRawData(mockRawData);
+        
+        // Generate initial mappings
+        const uniqueAccounts = mockRawData.reduce((acc, entry) => {
+          if (!acc.find(item => item.accountNumber === entry.accountNumber)) {
+            acc.push({
+              accountNumber: entry.accountNumber,
+              accountDescription: entry.accountDescription,
+              highLevelCategory: '',
+              subCategory: '',
+              detailedCategory: ''
+            });
+          }
+          return acc;
+        }, [] as AccountMapping[]);
+        
+        setMappings(uniqueAccounts);
+        setCurrentStep(uploadedFileType === 'excel' ? 2 : 3); // Excel goes to validation, PDF skips to mapping
+        
+        toast({
+          title: "File uploaded successfully",
+          description: "Trial balance data has been processed.",
         });
       }
-      return acc;
-    }, [] as AccountMapping[]);
-    
-    setMappings(uniqueAccounts);
-    setCurrentStep(2);
-    
-    toast({
-      title: "File uploaded successfully",
-      description: "Trial balance data has been processed.",
-    });
+    } catch (error) {
+      toast({
+        title: "Processing failed",
+        description: "There was an error processing your file. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleValidation = () => {
@@ -171,7 +220,12 @@ const Index = () => {
     console.log(`Exporting ${type} data...`);
   };
 
-  const steps = [
+  const steps = uploadedFileType === 'pdf' ? [
+    { number: 1, title: "Upload PDF", description: "Import financial report PDF", icon: Upload },
+    { number: 2, title: "Extract Data", description: "Parse financial statements", icon: FileText },
+    { number: 3, title: "Map Accounts", description: "Classify accounts into categories", icon: MapPin },
+    { number: 4, title: "Generate Reports", description: "Create financial statements", icon: BarChart3 }
+  ] : [
     { number: 1, title: "Upload Data", description: "Import trial balance Excel file", icon: Upload },
     { number: 2, title: "Validate Data", description: "Check data integrity", icon: CheckCircle },
     { number: 3, title: "Map Accounts", description: "Classify accounts into categories", icon: MapPin },
@@ -251,7 +305,14 @@ const Index = () => {
               <FileUpload onFileUpload={handleFileUpload} isProcessing={isProcessing} />
             )}
 
-            {currentStep === 2 && validationResult === null && (
+            {currentStep === 2 && uploadedFileType === 'pdf' && pdfData && (
+              <PDFExtraction 
+                pdfData={pdfData}
+                onProceedToMapping={() => setCurrentStep(3)}
+              />
+            )}
+
+            {currentStep === 2 && uploadedFileType === 'excel' && validationResult === null && (
               <Card>
                 <CardHeader>
                   <CardTitle>Validate Trial Balance Data</CardTitle>
@@ -281,7 +342,7 @@ const Index = () => {
               </Card>
             )}
 
-            {currentStep === 2 && validationResult && (
+            {currentStep === 2 && uploadedFileType === 'excel' && validationResult && (
               <Card>
                 <CardHeader>
                   <CardTitle className={validationResult.isValid ? "text-green-600" : "text-red-600"}>

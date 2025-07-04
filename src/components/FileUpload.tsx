@@ -46,11 +46,12 @@ export const FileUpload = ({ onFileUpload, isProcessing }: FileUploadProps) => {
     const validTypes = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'application/vnd.ms-excel',
-      'text/csv'
+      'text/csv',
+      'application/pdf'
     ];
 
     if (!validTypes.includes(file.type)) {
-      setUploadError('Please upload an Excel file (.xlsx, .xls) or CSV file');
+      setUploadError('Please upload an Excel file (.xlsx, .xls), CSV file, or PDF file');
       return;
     }
 
@@ -79,7 +80,7 @@ export const FileUpload = ({ onFileUpload, isProcessing }: FileUploadProps) => {
           >
             <input
               type="file"
-              accept=".xlsx,.xls,.csv"
+              accept=".xlsx,.xls,.csv,.pdf"
               onChange={handleFileSelect}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               disabled={isProcessing}
@@ -100,13 +101,13 @@ export const FileUpload = ({ onFileUpload, isProcessing }: FileUploadProps) => {
               
               <div>
                 <h3 className="text-xl font-semibold mb-2">
-                  {isProcessing ? "Processing..." : "Upload Trial Balance File"}
+                  {isProcessing ? "Processing..." : "Upload Financial Data"}
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  Drag and drop your Excel file here, or click to browse
+                  Drag and drop your Excel or PDF file here, or click to browse
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Supported formats: .xlsx, .xls, .csv (max 10MB)
+                  Supported formats: .xlsx, .xls, .csv, .pdf (max 10MB)
                 </p>
               </div>
               
