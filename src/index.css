@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Financial Due Diligence Design System - Professional Finance Theme */
+
+@layer base {
+  :root {
+    /* Core brand colors - Deep financial blue theme */
+    --background: 210 20% 98%;
+    --foreground: 215 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+
+    /* Primary - Deep navy for financial professionalism */
+    --primary: 215 85% 25%;
+    --primary-foreground: 210 40% 98%;
+    --primary-light: 215 85% 35%;
+    --primary-glow: 215 85% 45%;
+
+    /* Secondary - Professional gray */
+    --secondary: 210 15% 95%;
+    --secondary-foreground: 215 25% 25%;
+
+    --muted: 210 15% 96%;
+    --muted-foreground: 215 15% 45%;
+
+    /* Accent - Financial green for positive values */
+    --accent: 142 76% 36%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 142 76% 46%;
+
+    /* Financial specific colors */
+    --financial-red: 0 84% 55%;
+    --financial-green: 142 76% 36%;
+    --financial-blue: 215 85% 35%;
+    --financial-amber: 45 96% 53%;
+
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 20% 88%;
+    --input: 214.3 20% 94%;
+    --ring: 215 85% 35%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-medium;
+  }
+
+  /* Financial specific utilities */
+  .gradient-financial {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+  }
+  
+  .gradient-subtle {
+    background: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+  }
+  
+  .shadow-financial {
+    box-shadow: 0 4px 24px -4px hsl(var(--primary) / 0.15);
+  }
+  
+  .text-financial-red {
+    color: hsl(var(--financial-red));
+  }
+  
+  .text-financial-green {
+    color: hsl(var(--financial-green));
+  }
+  
+  .text-financial-blue {
+    color: hsl(var(--financial-blue));
+  }
+  
+  .bg-financial-red {
+    background-color: hsl(var(--financial-red));
+  }
+  
+  .bg-financial-green {
+    background-color: hsl(var(--financial-green));
+  }
+  
+  .bg-financial-blue {
+    background-color: hsl(var(--financial-blue));
+  }
+
+  /* Animation utilities */
+  .story-link {
+    @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-lg;
+  }
+
+  .pulse-glow {
+    @apply animate-pulse-subtle;
+  }
+
+  .smooth-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .enter-animation {
+    @apply animate-fade-in;
+  }
+
+  .scale-animation {
+    @apply animate-scale-in;
+  }
+}
