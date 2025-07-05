@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -19,14 +19,18 @@ export const DataTabs = ({ mappings, trialBalanceData = [] }: DataTabsProps) => 
   const [activeDataTab, setActiveDataTab] = useState("original");
 
   // Mock trial balance data if not provided
-  const mockTrialBalance: TrialBalanceEntry[] = mappings.map((mapping, index) => ({
-    date: "2024-12-31",
-    accountNumber: mapping.accountNumber,
-    accountDescription: mapping.accountDescription,
-    debit: Math.random() > 0.5 ? Math.floor(Math.random() * 100000) : 0,
-    credit: Math.random() > 0.5 ? Math.floor(Math.random() * 100000) : 0,
-    balance: Math.floor(Math.random() * 200000) - 100000
-  }));
+  const mockTrialBalance: TrialBalanceEntry[] = useMemo(
+    () =>
+      mappings.map((mapping) => ({
+        date: "2024-12-31",
+        accountNumber: mapping.accountNumber,
+        accountDescription: mapping.accountDescription,
+        debit: Math.random() > 0.5 ? Math.floor(Math.random() * 100000) : 0,
+        credit: Math.random() > 0.5 ? Math.floor(Math.random() * 100000) : 0,
+        balance: Math.floor(Math.random() * 200000) - 100000,
+      })),
+    [mappings]
+  );
 
   const dataToShow = trialBalanceData.length > 0 ? trialBalanceData : mockTrialBalance;
 
