@@ -102,11 +102,14 @@ const Index = () => {
   const handleFileUpload = async (file: File) => {
     setIsProcessing(true);
     console.log("Processing file:", file.name);
+
+    const fileType: 'excel' | 'pdf' =
+      file.type === 'application/pdf' ? 'pdf' : 'excel';
+    setUploadedFileType(fileType);
     
     try {
-      if (file.type === 'application/pdf') {
+      if (fileType === 'pdf') {
         // Handle PDF upload
-        setUploadedFileType('pdf');
         const extractedData = await processPDFFile(file);
         setPdfData(extractedData);
         
@@ -137,7 +140,6 @@ const Index = () => {
         });
       } else {
         // Handle Excel/CSV upload (existing logic)
-        setUploadedFileType('excel');
         
         const mockRawData: TrialBalanceEntry[] = [
           { date: '2024-12-31', accountNumber: '1001', accountDescription: 'Cash and Cash Equivalents', debit: 500000, credit: 0, balance: 500000 },
@@ -167,7 +169,7 @@ const Index = () => {
         }, [] as AccountMapping[]);
         
         setMappings(uniqueAccounts);
-        setCurrentStep(uploadedFileType === 'excel' ? 2 : 3); // Excel goes to validation, PDF skips to mapping
+        setCurrentStep(fileType === 'excel' ? 2 : 3); // Excel goes to validation, PDF skips to mapping
         
         toast({
           title: "File uploaded successfully",
