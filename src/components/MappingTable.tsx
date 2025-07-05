@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Search, Download, Save, RotateCcw } from "lucide-react";
-import { AccountMapping, FinancialCategories } from "@/types/financial";
+import { AccountMapping } from "@/types/financial";
 
 interface MappingTableProps {
   mappings: AccountMapping[];
